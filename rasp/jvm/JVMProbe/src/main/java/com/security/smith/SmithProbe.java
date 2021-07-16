@@ -79,23 +79,15 @@ public class SmithProbe implements ClassFileTransformer, ProbeNotify {
     }
 
     private void reloadClasses(Collection<String> classes) {
-        List<Class<?>> cls = new ArrayList<>();
-
         for (String className : classes) {
             try {
-                Class<?> cl = Class.forName(className, true, ClassLoader.getSystemClassLoader());
-                cls.add(cl);
+                inst.retransformClasses(Class.forName(className, true, ClassLoader.getSystemClassLoader()));
+                SmithLogger.logger.info("reload: " + cls);
             } catch (ClassNotFoundException e) {
                 SmithLogger.logger.info("class not found: " + className);
+            } catch (UnmodifiableClassException e) {
+                SmithLogger.exception(e);
             }
-        }
-
-        SmithLogger.logger.info("reload: " + cls);
-
-        try {
-            inst.retransformClasses(cls.toArray(new Class<?>[0]));
-        } catch (UnmodifiableClassException e) {
-            SmithLogger.exception(e);
         }
     }
 
